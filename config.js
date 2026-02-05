@@ -33,7 +33,7 @@ const CONFIG = {
             nextBtn: "Next ❤️"                                         // Text for the next button
         },
         third: {
-            text: "Arya, will you be my Valentine?",
+            text: "Arya, Will you be my valentine this valentine week?",
             yesBtn: "Yes!",                                             // Text for "Yes" button
             noBtn: "No"                                                 // Text for "No" button
         }
@@ -49,8 +49,8 @@ const CONFIG = {
 
     // Messages that appear after they say "Yes!"
     celebration: {
-        title: "I knew you'd say yes, Arya! 💞",
-        message: "This website is just the start; I promise to annoy you with love every day!",
+        title: "I love you Arya! 💕",
+        message: "Thanks for being my Valentine! 🎉 However, I knew you couldn't resist me 😎",
         emojis: "🎁💖🤗💝💋❤️💕"  // These will bounce around
     },
 

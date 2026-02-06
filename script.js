@@ -135,9 +135,10 @@ function moveButton(btn) {
 }
 
 
-// ================= LOVE METER (FIXED) =================
+// ================= LOVE METER (POWER MODE) =================
 
 let loveMeter, loveValue, extraLove;
+let maxTriggered = false;
 
 function initLoveMeter() {
 
@@ -147,9 +148,11 @@ function initLoveMeter() {
 
     if (!loveMeter) return;
 
+
     // Initial
     loveMeter.value = 100;
     loveValue.textContent = 100;
+
 
     if (extraLove) {
         extraLove.classList.add("hidden");
@@ -165,17 +168,31 @@ function initLoveMeter() {
         loveValue.textContent = value;
 
 
-        // Over 100% reactions 💖
+        /* Glow intensity */
+        const power = Math.min(value / 10000, 1);
+
+        loveMeter.style.boxShadow =
+            `0 0 ${10 + power * 40}px rgba(255,23,68,0.9),
+             0 0 ${20 + power * 60}px rgba(255,128,171,1)`;
+
+
+        /* Screen shake near max */
+        if (value > 8500) {
+            shakeScreen(power);
+        }
+
+
+        /* Extra messages */
         if (value > 100 && extraLove) {
 
             extraLove.classList.remove("hidden");
 
-            if (value >= 8000) {
+            if (value >= 9000) {
 
-                extraLove.textContent = "Infinity Love 💍❤️";
+                extraLove.textContent = "MAX LOVE MODE 💍🔥❤️";
                 extraLove.classList.add("super-love");
 
-            } else if (value >= 3000) {
+            } else if (value >= 5000) {
 
                 extraLove.textContent = "Too Much Love 😍💖";
                 extraLove.classList.remove("super-love");
@@ -194,13 +211,73 @@ function initLoveMeter() {
         }
 
 
-        // Feedback animation
-        loveMeter.style.transform = "scale(1.02)";
+        /* Bounce */
+        loveMeter.style.transform = "scale(1.05)";
 
         setTimeout(() => {
             loveMeter.style.transform = "scale(1)";
-        }, 120);
+        }, 100);
+
+
+        /* Max explosion */
+        if (value >= 10000 && !maxTriggered) {
+
+            maxTriggered = true;
+
+            ultraLoveExplosion();
+        }
+
+        if (value < 9800) {
+            maxTriggered = false;
+        }
     });
+}
+
+
+/* Screen shake */
+function shakeScreen(power) {
+
+    const container = document.querySelector(".container");
+
+    if (!container) return;
+
+    const intensity = 2 + power * 6;
+
+    container.style.transform =
+        `translate(${Math.random()*intensity-intensity/2}px,
+                   ${Math.random()*intensity-intensity/2}px)`;
+
+    setTimeout(() => {
+        container.style.transform = "translate(0,0)";
+    }, 50);
+}
+
+
+/* Max hearts */
+function ultraLoveExplosion() {
+
+    const container =
+        document.querySelector(".floating-elements");
+
+    if (!container) return;
+
+
+    for (let i = 0; i < 120; i++) {
+
+        const heart = document.createElement("div");
+
+        heart.innerHTML = "💖";
+        heart.className = "heart";
+
+        heart.style.left = "50%";
+        heart.style.top = "50%";
+
+        container.appendChild(heart);
+
+        setTimeout(() => {
+            setRandomPosition(heart);
+        }, 20);
+    }
 }
 
 
@@ -235,19 +312,16 @@ function setupMusicPlayer() {
 
 // ================= YES FLOW =================
 
-// Q1 -> Q2
 function handleYesClick() {
     showNextQuestion(2);
 }
 
 
-// Q2 -> Q3
 function goToFinal() {
     showNextQuestion(3);
 }
 
 
-// Q3 -> Celebration
 function finalYes() {
     celebrate();
 }

@@ -16,9 +16,10 @@ window.addEventListener("DOMContentLoaded", () => {
         `${config.valentineName || "My Love"}, my love...`;
 
 
-    // Q1
+    // -------- Q1 (Custom Intro) --------
+
     document.getElementById("question1Text").textContent =
-        config.questions?.first?.text || "";
+        "Hey Arya 💖, This is Adarsh... Will you be my Valentine? 😘";
 
     document.getElementById("yesBtn1").textContent =
         config.questions?.first?.yesBtn || "Yes";
@@ -30,7 +31,8 @@ window.addEventListener("DOMContentLoaded", () => {
         config.questions?.first?.secretAnswer || "Click Me";
 
 
-    // Q2
+    // -------- Q2 --------
+
     document.getElementById("question2Text").textContent =
         config.questions?.second?.text || "";
 
@@ -41,7 +43,8 @@ window.addEventListener("DOMContentLoaded", () => {
         config.questions?.second?.nextBtn || "Next";
 
 
-    // Q3
+    // -------- Q3 --------
+
     document.getElementById("question3Text").textContent =
         config.questions?.third?.text || "";
 
@@ -143,7 +146,6 @@ function moveButton(btn) {
 
 const loveMeter = document.getElementById("loveMeter");
 const loveValue = document.getElementById("loveValue");
-const extraLove = document.getElementById("extraLove");
 
 
 function setInitialPosition() {
@@ -190,17 +192,7 @@ function setupMusicPlayer() {
 // ================= YES =================
 
 function handleYesClick() {
-
-    document
-        .querySelectorAll(".question-section")
-        .forEach(q => q.classList.add("hidden"));
-
-    const q2 = document.getElementById("question2");
-
-    if (q2) {
-        q2.classList.remove("hidden");
-        q2.style.display = "block";
-    }
+    showNextQuestion(2);
 }
 
 
@@ -260,12 +252,7 @@ function handleNoClick(event) {
 
             positionBubble(btn, bubble);
 
-            bubble.classList.remove("hidden");
-            bubble.classList.add("show");
-
-            setTimeout(() => {
-                bubble.classList.remove("show");
-            }, 2000);
+            showBubble(bubble, 2000);
         }
 
         return;
@@ -289,14 +276,24 @@ function handleNoClick(event) {
 
     positionBubble(btn, bubble);
 
+    showBubble(bubble, 2000);
+}
+
+
+// ================= BUBBLE AUTO HIDE =================
+
+function showBubble(bubble, time = 2000) {
 
     bubble.classList.remove("hidden");
     bubble.classList.add("show");
 
-
     clearTimeout(window.noMsgTimer);
 
     window.noMsgTimer = setTimeout(() => {
+
         bubble.classList.remove("show");
-    }, 1800);
+        bubble.classList.add("hidden");
+        bubble.textContent = "";
+
+    }, time);
 }

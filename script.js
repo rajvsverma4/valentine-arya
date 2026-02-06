@@ -3,55 +3,6 @@
 const config = window.VALENTINE_CONFIG || {};
 
 
-// ================= VALIDATION =================
-
-function validateConfig() {
-
-    const warnings = [];
-
-    if (!config.valentineName) {
-        config.valentineName = "My Love";
-    }
-
-    const isValidHex = (hex) =>
-        /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex);
-
-    Object.entries(config.colors || {}).forEach(([key, value]) => {
-
-        if (!isValidHex(value)) {
-            config.colors[key] = getDefaultColor(key);
-        }
-    });
-
-    if (parseFloat(config.animations?.floatDuration) < 5) {
-        config.animations.floatDuration = "5s";
-    }
-
-    if (
-        config.animations?.heartExplosionSize < 1 ||
-        config.animations?.heartExplosionSize > 3
-    ) {
-        config.animations.heartExplosionSize = 1.5;
-    }
-}
-
-
-// ================= DEFAULT COLORS =================
-
-function getDefaultColor(key) {
-
-    const defaults = {
-        backgroundStart: "#ffafbd",
-        backgroundEnd: "#ffc3a0",
-        buttonBackground: "#ff6b6b",
-        buttonHover: "#ff8787",
-        textColor: "#ff4757"
-    };
-
-    return defaults[key];
-}
-
-
 // ================= TITLE =================
 
 document.title = config.pageTitle || "For You ❤️";
@@ -61,14 +12,11 @@ document.title = config.pageTitle || "For You ❤️";
 
 window.addEventListener("DOMContentLoaded", () => {
 
-    validateConfig();
-
     document.getElementById("valentineTitle").textContent =
         `${config.valentineName || "My Love"}, my love...`;
 
 
-    // -------- Q1 --------
-
+    // Q1
     document.getElementById("question1Text").textContent =
         config.questions?.first?.text || "";
 
@@ -82,8 +30,7 @@ window.addEventListener("DOMContentLoaded", () => {
         config.questions?.first?.secretAnswer || "Click Me";
 
 
-    // -------- Q2 --------
-
+    // Q2
     document.getElementById("question2Text").textContent =
         config.questions?.second?.text || "";
 
@@ -94,8 +41,7 @@ window.addEventListener("DOMContentLoaded", () => {
         config.questions?.second?.nextBtn || "Next";
 
 
-    // -------- Q3 --------
-
+    // Q3
     document.getElementById("question3Text").textContent =
         config.questions?.third?.text || "";
 
@@ -124,16 +70,6 @@ function createFloatingElements() {
         const div = document.createElement("div");
         div.className = "heart";
         div.innerHTML = h;
-
-        setRandomPosition(div);
-        container.appendChild(div);
-    });
-
-    (config.floatingEmojis?.bears || []).forEach(b => {
-
-        const div = document.createElement("div");
-        div.className = "bear";
-        div.innerHTML = b;
 
         setRandomPosition(div);
         container.appendChild(div);
@@ -203,7 +139,7 @@ function moveButton(btn) {
 }
 
 
-// ================= LOVE METER =================
+// ================= LOVE =================
 
 const loveMeter = document.getElementById("loveMeter");
 const loveValue = document.getElementById("loveValue");
@@ -216,114 +152,6 @@ function setInitialPosition() {
 
     loveMeter.value = 100;
     loveValue.textContent = 100;
-    loveMeter.style.width = "100%";
-}
-
-
-loveMeter?.addEventListener("input", () => {
-
-    const value = parseInt(loveMeter.value);
-
-    loveValue.textContent = value;
-
-    if (value > 100) {
-
-        extraLove?.classList.remove("hidden");
-
-        const overflow = (value - 100) / 9900;
-
-        const extraWidth =
-            overflow * window.innerWidth * 0.8;
-
-        loveMeter.style.width =
-            `calc(100% + ${extraWidth}px)`;
-
-
-        if (value >= 5000) {
-
-            extraLove?.classList.add("super-love");
-            extraLove.textContent =
-                config.loveMessages?.extreme || "";
-
-        } else if (value > 1000) {
-
-            extraLove?.classList.remove("super-love");
-            extraLove.textContent =
-                config.loveMessages?.high || "";
-
-        } else {
-
-            extraLove?.classList.remove("super-love");
-            extraLove.textContent =
-                config.loveMessages?.normal || "";
-        }
-
-    } else {
-
-        extraLove?.classList.add("hidden");
-        extraLove?.classList.remove("super-love");
-
-        loveMeter.style.width = "100%";
-    }
-});
-
-
-// ================= CELEBRATION =================
-
-function celebrate() {
-
-    document
-        .querySelectorAll(".question-section")
-        .forEach(q => q.classList.add("hidden"));
-
-    const c = document.getElementById("celebration");
-    if (!c) return;
-
-    c.classList.remove("hidden");
-
-
-    document.getElementById("celebrationTitle").textContent =
-        config.celebration?.title || "I Love You ❤️";
-
-    document.getElementById("celebrationMessage").textContent =
-        config.celebration?.message || "";
-
-    document.getElementById("celebrationEmojis").textContent =
-        config.celebration?.emojis || "";
-
-
-    createHeartExplosion();
-}
-
-
-// ================= HEARTS =================
-
-function createHeartExplosion() {
-
-    const container =
-        document.querySelector(".floating-elements");
-
-    if (!container) return;
-
-
-    for (let i = 0; i < 50; i++) {
-
-        const heart = document.createElement("div");
-
-        const list =
-            config.floatingEmojis?.hearts || ["❤️"];
-
-        const h =
-            list[Math.floor(Math.random() * list.length)];
-
-
-        heart.innerHTML = h;
-        heart.className = "heart";
-
-        container.appendChild(heart);
-
-        setRandomPosition(heart);
-    }
 }
 
 
@@ -331,70 +159,29 @@ function createHeartExplosion() {
 
 function setupMusicPlayer() {
 
-    const musicControls =
-        document.getElementById("musicControls");
+    const toggle = document.getElementById("musicToggle");
+    const bg = document.getElementById("bgMusic");
 
-    const musicToggle =
-        document.getElementById("musicToggle");
+    if (!config.music?.enabled) return;
 
-    const bgMusic =
-        document.getElementById("bgMusic");
+    if (bg) {
 
-    const musicSource =
-        document.getElementById("musicSource");
-
-
-    if (!config.music?.enabled) {
-
-        if (musicControls)
-            musicControls.style.display = "none";
-
-        return;
-    }
-
-
-    if (musicSource)
-        musicSource.src = config.music.musicUrl;
-
-
-    if (bgMusic) {
-
-        bgMusic.volume =
-            config.music.volume || 0.5;
-
-        bgMusic.load();
-
+        bg.src = config.music.musicUrl;
+        bg.volume = config.music.volume || 0.5;
 
         if (config.music.autoplay) {
-
-            bgMusic.play().catch(() => {
-
-                if (musicToggle)
-                    musicToggle.textContent =
-                        config.music.startText;
-            });
+            bg.play().catch(() => {});
         }
     }
 
+    toggle?.addEventListener("click", () => {
 
-    musicToggle?.addEventListener("click", () => {
+        if (!bg) return;
 
-        if (!bgMusic) return;
-
-
-        if (bgMusic.paused) {
-
-            bgMusic.play();
-
-            musicToggle.textContent =
-                config.music.stopText;
-
+        if (bg.paused) {
+            bg.play();
         } else {
-
-            bgMusic.pause();
-
-            musicToggle.textContent =
-                config.music.startText;
+            bg.pause();
         }
     });
 }
@@ -404,16 +191,16 @@ function setupMusicPlayer() {
 
 function handleYesClick() {
 
-    const q1 =
-        document.getElementById("question1");
+    document
+        .querySelectorAll(".question-section")
+        .forEach(q => q.classList.add("hidden"));
 
-    if (q1)
-        q1.classList.add("hidden");
+    const q2 = document.getElementById("question2");
 
-
-    setTimeout(() => {
-        showNextQuestion(2);
-    }, 300);
+    if (q2) {
+        q2.classList.remove("hidden");
+        q2.style.display = "block";
+    }
 }
 
 
@@ -431,34 +218,47 @@ let noIndex = 0;
 let noTryCount = 0;
 
 
+// Position bubble under button
+function positionBubble(btn, bubble) {
+
+    const rect = btn.getBoundingClientRect();
+
+    bubble.style.left =
+        rect.left + rect.width / 2 + "px";
+
+    bubble.style.top =
+        rect.bottom + 8 + "px";
+
+    bubble.style.transform = "translateX(-50%)";
+}
+
+
+// Handle No click
 function handleNoClick(event) {
 
     const btn = event.target;
 
+    const bubble =
+        document.getElementById("noMessageBubble");
+
     noTryCount++;
 
 
-    // After 5 tries -> surrender ❤️
+    // After 5 tries → surrender ❤️
     if (noTryCount >= 5) {
 
         btn.style.position = "static";
-        btn.style.transition = "all 0.3s ease";
-        btn.style.transform = "scale(1)";
-
         btn.textContent = "Okay… Yes ❤️";
 
-        btn.onclick = () => {
-            handleYesClick();
-        };
+        btn.onclick = () => handleYesClick();
 
-
-        const bubble =
-            document.getElementById("noMessageBubble");
 
         if (bubble) {
 
             bubble.textContent =
                 "Haha 😜 I knew it! You love me ❤️";
+
+            positionBubble(btn, bubble);
 
             bubble.classList.remove("hidden");
             bubble.classList.add("show");
@@ -472,12 +272,9 @@ function handleNoClick(event) {
     }
 
 
-    // Normal behavior
+    // Normal move
     moveButton(btn);
 
-
-    const bubble =
-        document.getElementById("noMessageBubble");
 
     if (!bubble) return;
 
@@ -489,6 +286,9 @@ function handleNoClick(event) {
 
 
     bubble.textContent = msg;
+
+    positionBubble(btn, bubble);
+
 
     bubble.classList.remove("hidden");
     bubble.classList.add("show");

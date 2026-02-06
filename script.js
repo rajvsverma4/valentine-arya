@@ -16,43 +16,30 @@ window.addEventListener("DOMContentLoaded", () => {
         `${config.valentineName || "My Love"}, my love...`;
 
 
-    // -------- Q1 (Custom Intro) --------
-
+    // Q1
     document.getElementById("question1Text").textContent =
         "Hey Arya 💖, This is Adarsh... Will you be my Valentine? 😘";
 
-    document.getElementById("yesBtn1").textContent =
-        config.questions?.first?.yesBtn || "Yes";
-
-    document.getElementById("noBtn1").textContent =
-        config.questions?.first?.noBtn || "No";
-
-    document.getElementById("secretAnswerBtn").textContent =
-        config.questions?.first?.secretAnswer || "Click Me";
+    document.getElementById("yesBtn1").textContent = "Yes";
+    document.getElementById("noBtn1").textContent = "No";
 
 
-    // -------- Q2 --------
-
+    // Q2
     document.getElementById("question2Text").textContent =
-        config.questions?.second?.text || "";
+        config.questions?.second?.text || "How much do you love me? 😘";
 
     document.getElementById("startText").textContent =
-        config.questions?.second?.startText || "";
+        config.questions?.second?.startText || "Love Meter";
 
-    document.getElementById("nextBtn").textContent =
-        config.questions?.second?.nextBtn || "Next";
+    document.getElementById("nextBtn").textContent = "Next";
 
 
-    // -------- Q3 --------
-
+    // Q3
     document.getElementById("question3Text").textContent =
-        config.questions?.third?.text || "";
+        config.questions?.third?.text || "So… Will you be mine forever? ❤️";
 
-    document.getElementById("yesBtn3").textContent =
-        config.questions?.third?.yesBtn || "Yes";
-
-    document.getElementById("noBtn3").textContent =
-        config.questions?.third?.noBtn || "No";
+    document.getElementById("yesBtn3").textContent = "Yes 💖";
+    document.getElementById("noBtn3").textContent = "No 😜";
 
 
     createFloatingElements();
@@ -68,7 +55,7 @@ function createFloatingElements() {
     const container = document.querySelector(".floating-elements");
     if (!container) return;
 
-    (config.floatingEmojis?.hearts || []).forEach(h => {
+    (config.floatingEmojis?.hearts || ["❤️","💖","💕"]).forEach(h => {
 
         const div = document.createElement("div");
         div.className = "heart";
@@ -83,9 +70,9 @@ function createFloatingElements() {
 function setRandomPosition(el) {
 
     el.style.left = Math.random() * 100 + "vw";
-    el.style.animationDelay = Math.random() * 5 + "s";
+    el.style.animationDelay = Math.random() * 3 + "s";
     el.style.animationDuration =
-        10 + Math.random() * 20 + "s";
+        10 + Math.random() * 15 + "s";
 }
 
 
@@ -95,11 +82,17 @@ function showNextQuestion(num) {
 
     document
         .querySelectorAll(".question-section")
-        .forEach(q => q.classList.add("hidden"));
+        .forEach(q => {
+            q.classList.add("hidden");
+            q.style.display = "none";
+        });
 
-    document
-        .getElementById(`question${num}`)
-        ?.classList.remove("hidden");
+    const next = document.getElementById(`question${num}`);
+
+    if (next) {
+        next.classList.remove("hidden");
+        next.style.display = "block";
+    }
 }
 
 
@@ -180,19 +173,80 @@ function setupMusicPlayer() {
 
         if (!bg) return;
 
-        if (bg.paused) {
-            bg.play();
-        } else {
-            bg.pause();
-        }
+        if (bg.paused) bg.play();
+        else bg.pause();
     });
 }
 
 
-// ================= YES =================
+// ================= YES FLOW =================
 
+// Q1 -> Q2
 function handleYesClick() {
     showNextQuestion(2);
+}
+
+
+// Q2 -> Q3
+function goToFinal() {
+    showNextQuestion(3);
+}
+
+
+// Q3 -> Celebration
+function finalYes() {
+    celebrate();
+}
+
+
+// ================= CELEBRATION =================
+
+function celebrate() {
+
+    document
+        .querySelectorAll(".question-section")
+        .forEach(q => q.classList.add("hidden"));
+
+    const c = document.getElementById("celebration");
+    if (!c) return;
+
+    c.classList.remove("hidden");
+
+
+    document.getElementById("celebrationTitle").textContent =
+        "I Love You Arya ❤️";
+
+    document.getElementById("celebrationMessage").textContent =
+        "You just made Adarsh the happiest person 💖";
+
+    document.getElementById("celebrationEmojis").textContent =
+        "💍💘🥰💕✨";
+
+    createHeartExplosion();
+}
+
+
+// ================= HEARTS =================
+
+function createHeartExplosion() {
+
+    const container =
+        document.querySelector(".floating-elements");
+
+    if (!container) return;
+
+
+    for (let i = 0; i < 50; i++) {
+
+        const heart = document.createElement("div");
+
+        heart.innerHTML = "💖";
+        heart.className = "heart";
+
+        container.appendChild(heart);
+
+        setRandomPosition(heart);
+    }
 }
 
 
@@ -201,16 +255,16 @@ function handleYesClick() {
 const noMessages = [
     "Think about it twice! 🤔",
     "I know your heart doesn't say no 💕",
-    "Are you sure? Really sure? 😏",
-    "I knew you'd click No first 😂",
-    "Your finger slipped, right? 😜"
+    "Are you sure? 😏",
+    "Come on 😜",
+    "You love me ❤️"
 ];
 
 let noIndex = 0;
 let noTryCount = 0;
 
 
-// Position bubble under button
+// Bubble position
 function positionBubble(btn, bubble) {
 
     const rect = btn.getBoundingClientRect();
@@ -219,13 +273,40 @@ function positionBubble(btn, bubble) {
         rect.left + rect.width / 2 + "px";
 
     bubble.style.top =
-        rect.bottom + 8 + "px";
+        rect.bottom + 10 + "px";
 
-    bubble.style.transform = "translateX(-50%)";
+    bubble.style.transform = "translateX(-50%) scale(1)";
 }
 
 
-// Handle No click
+// Bubble show
+function showBubble(bubble, msg) {
+
+    bubble.textContent = msg;
+
+    bubble.classList.remove("hidden");
+    bubble.classList.add("show");
+
+    bubble.style.transform = "translateX(-50%) scale(1.05)";
+
+    setTimeout(() => {
+        bubble.style.transform = "translateX(-50%) scale(1)";
+    }, 200);
+
+
+    clearTimeout(window.noMsgTimer);
+
+    window.noMsgTimer = setTimeout(() => {
+
+        bubble.classList.remove("show");
+        bubble.classList.add("hidden");
+        bubble.textContent = "";
+
+    }, 2000);
+}
+
+
+// Handle No
 function handleNoClick(event) {
 
     const btn = event.target;
@@ -236,7 +317,7 @@ function handleNoClick(event) {
     noTryCount++;
 
 
-    // After 5 tries → surrender ❤️
+    // Surrender
     if (noTryCount >= 5) {
 
         btn.style.position = "static";
@@ -247,12 +328,12 @@ function handleNoClick(event) {
 
         if (bubble) {
 
-            bubble.textContent =
-                "Haha 😜 I knew it! You love me ❤️";
-
             positionBubble(btn, bubble);
 
-            showBubble(bubble, 2000);
+            showBubble(
+                bubble,
+                "Haha 😜 I knew it! ❤️"
+            );
         }
 
         return;
@@ -272,28 +353,7 @@ function handleNoClick(event) {
     noIndex++;
 
 
-    bubble.textContent = msg;
-
     positionBubble(btn, bubble);
 
-    showBubble(bubble, 2000);
-}
-
-
-// ================= BUBBLE AUTO HIDE =================
-
-function showBubble(bubble, time = 2000) {
-
-    bubble.classList.remove("hidden");
-    bubble.classList.add("show");
-
-    clearTimeout(window.noMsgTimer);
-
-    window.noMsgTimer = setTimeout(() => {
-
-        bubble.classList.remove("show");
-        bubble.classList.add("hidden");
-        bubble.textContent = "";
-
-    }, time);
+    showBubble(bubble, msg);
 }

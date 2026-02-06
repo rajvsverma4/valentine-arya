@@ -316,3 +316,30 @@ h2 {
     transform: scale(1.05);
     background: var(--secondary-color);
 } 
+
+/* No message bubble */
+.no-message-bubble {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  color: #ff4b6e;
+  padding: 10px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.no-message-bubble.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 10px);
+}
+
+.no-message-bubble.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}

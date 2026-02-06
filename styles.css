@@ -1,419 +1,392 @@
-// ================= CONFIG =================
+/* ================= VARIABLES ================= */
 
-const config = window.VALENTINE_CONFIG || {};
+:root {
+    --background-color-1: #ffafbd;
+    --background-color-2: #ffc3a0;
+    --button-color: #ff6b6b;
+    --button-hover: #ff8787;
+    --text-color: #ff4757;
 
-
-// ================= TITLE =================
-
-document.title = config.pageTitle || "For You ❤️";
-
-
-// ================= INIT =================
-
-window.addEventListener("DOMContentLoaded", () => {
-
-    document.getElementById("valentineTitle").textContent =
-        `${config.valentineName || "My Love"}, my love...`;
-
-
-    // Q1
-    document.getElementById("question1Text").textContent =
-        "Hey Arya 💖, This is Adarsh... Will you be my Valentine? 😘";
-
-    document.getElementById("yesBtn1").textContent = "Yes";
-    document.getElementById("noBtn1").textContent = "No";
-
-
-    // Q2
-    document.getElementById("question2Text").textContent =
-        config.questions?.second?.text || "How much do you love me? 😘";
-
-    document.getElementById("startText").textContent =
-        config.questions?.second?.startText || "Love Meter";
-
-    document.getElementById("nextBtn").textContent = "Next";
-
-
-    // Q3
-    document.getElementById("question3Text").textContent =
-        config.questions?.third?.text || "So… Will you be mine forever? ❤️";
-
-    document.getElementById("yesBtn3").textContent = "Yes 💖";
-    document.getElementById("noBtn3").textContent = "No 😜";
-
-
-    createFloatingElements();
-    setupMusicPlayer();
-    initLoveMeter();
-});
-
-
-// ================= FLOATING =================
-
-function createFloatingElements() {
-
-    const container = document.querySelector(".floating-elements");
-    if (!container) return;
-
-    (config.floatingEmojis?.hearts || ["❤️","💖","💕"]).forEach(h => {
-
-        const div = document.createElement("div");
-        div.className = "heart";
-        div.innerHTML = h;
-
-        setRandomPosition(div);
-        container.appendChild(div);
-    });
+    --float-duration: 15s;
+    --float-distance: 50px;
+    --bounce-speed: 0.5s;
 }
 
 
-function setRandomPosition(el) {
+/* ================= BASE ================= */
 
-    el.style.left = Math.random() * 100 + "vw";
-    el.style.animationDelay = Math.random() * 3 + "s";
-    el.style.animationDuration =
-        10 + Math.random() * 15 + "s";
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: linear-gradient(
+        135deg,
+        var(--background-color-1),
+        var(--background-color-2)
+    );
+
+    font-family: Arial, sans-serif;
+    overflow-x: hidden;
 }
 
 
-// ================= NAVIGATION =================
+.container {
+    background: rgba(255, 255, 255, 0.9);
 
-function showNextQuestion(num) {
+    padding: 2rem;
+    border-radius: 20px;
 
-    document
-        .querySelectorAll(".question-section")
-        .forEach(q => {
-            q.classList.add("hidden");
-            q.style.display = "none";
-        });
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 
-    const next = document.getElementById(`question${num}`);
+    text-align: center;
 
-    if (next) {
-        next.classList.remove("hidden");
-        next.style.display = "block";
+    max-width: 600px;
+    margin: 20px;
+}
+
+
+/* ================= FLOATING ================= */
+
+.floating-elements {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+
+.heart {
+    position: absolute;
+    font-size: 2rem;
+
+    animation: float var(--float-duration) linear infinite;
+}
+
+
+@keyframes float {
+    0% {
+        transform: translateY(100vh);
+    }
+
+    100% {
+        transform: translateY(-100px);
     }
 }
 
 
-// ================= NO MOVE =================
+/* ================= BUTTON ================= */
 
-function moveButton(btn) {
+.cute-btn {
+    background: var(--button-color);
 
-    if (!btn) return;
+    border: none;
 
-    const padding = 80;
+    padding: 10px 22px;
+    margin: 10px;
 
-    const maxX =
-        window.innerWidth - btn.offsetWidth - padding;
+    border-radius: 22px;
 
-    const maxY =
-        window.innerHeight - btn.offsetHeight - padding;
+    color: white;
+    font-size: 1.1rem;
 
-    const minX = padding;
-    const minY = padding;
+    cursor: pointer;
 
-    const x =
-        Math.random() * (maxX - minX) + minX;
-
-    const y =
-        Math.random() * (maxY - minY) + minY;
-
-
-    btn.style.transition =
-        "all 0.35s cubic-bezier(0.68,-0.55,0.27,1.55)";
-
-    btn.style.position = "fixed";
-    btn.style.left = x + "px";
-    btn.style.top = y + "px";
-
-    btn.style.transform = "scale(1.1) rotate(3deg)";
-
-    setTimeout(() => {
-        btn.style.transform = "scale(1) rotate(0deg)";
-    }, 200);
+    transition:
+        transform 0.25s ease,
+        background 0.25s ease;
 }
 
 
-// ================= LOVE METER (ENHANCED) =================
-
-let loveMeter, loveValue, extraLove;
-
-function initLoveMeter() {
-
-    loveMeter = document.getElementById("loveMeter");
-    loveValue = document.getElementById("loveValue");
-    extraLove = document.getElementById("extraLove");
-
-    if (!loveMeter) return;
-
-
-    // Initial
-    loveMeter.value = 100;
-    loveValue.textContent = 100;
-
-    if (extraLove) {
-        extraLove.classList.add("hidden");
-        extraLove.textContent = "";
-    }
-
-
-    // Live update
-    loveMeter.addEventListener("input", () => {
-
-        const value = parseInt(loveMeter.value);
-
-        loveValue.textContent = value;
-
-
-        /* Dynamic glow intensity */
-        const intensity = Math.min(value / 10000, 1);
-
-        loveMeter.style.boxShadow =
-            `0 0 ${10 + intensity * 25}px rgba(255,75,110,0.8),
-             0 0 ${20 + intensity * 40}px rgba(255,182,193,0.8)`;
-
-
-        /* Extra love reactions 💖 */
-        if (value > 100 && extraLove) {
-
-            extraLove.classList.remove("hidden");
-
-            if (value >= 8000) {
-
-                extraLove.textContent = "Infinity Love 💍❤️";
-                extraLove.classList.add("super-love");
-
-            } else if (value >= 3000) {
-
-                extraLove.textContent = "Too Much Love 😍💖";
-                extraLove.classList.remove("super-love");
-
-            } else {
-
-                extraLove.textContent = "More Than 100% 😘";
-                extraLove.classList.remove("super-love");
-            }
-
-        } else if (extraLove) {
-
-            extraLove.classList.add("hidden");
-            extraLove.textContent = "";
-            extraLove.classList.remove("super-love");
-        }
-
-
-        /* Bounce feedback */
-        loveMeter.style.transform = "scale(1.04)";
-
-        setTimeout(() => {
-            loveMeter.style.transform = "scale(1)";
-        }, 120);
-    });
+.cute-btn:hover {
+    transform: scale(1.1);
+    background: var(--button-hover);
 }
 
 
-// ================= MUSIC =================
-
-function setupMusicPlayer() {
-
-    const toggle = document.getElementById("musicToggle");
-    const bg = document.getElementById("bgMusic");
-
-    if (!config.music?.enabled) return;
-
-    if (bg) {
-
-        bg.src = config.music.musicUrl;
-        bg.volume = config.music.volume || 0.5;
-
-        if (config.music.autoplay) {
-            bg.play().catch(() => {});
-        }
-    }
-
-    toggle?.addEventListener("click", () => {
-
-        if (!bg) return;
-
-        if (bg.paused) bg.play();
-        else bg.pause();
-    });
+.hidden {
+    display: none;
 }
 
 
-// ================= YES FLOW =================
+/* ================= LOVE METER ================= */
 
-function handleYesClick() {
-    showNextQuestion(2);
+.love-meter {
+    width: 100%;
+    margin: 25px auto;
+    padding: 15px 0;
 }
 
 
-function goToFinal() {
-    showNextQuestion(3);
+.love-meter p {
+    font-size: 1.2em;
+
+    margin: 15px 0;
+
+    color: var(--text-color);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
 }
 
 
-function finalYes() {
-    celebrate();
+/* ===== TRACK ===== */
+
+.slider {
+    width: 100%;
+    height: 26px;
+
+    appearance: none;
+
+    border-radius: 20px;
+
+    background: linear-gradient(
+        to right,
+        #ff4b6e,
+        #ff6b6b,
+        #ffb6c1
+    );
+
+    outline: none;
+
+    box-shadow:
+        0 0 8px rgba(255, 75, 110, 0.4),
+        inset 0 0 6px rgba(255,255,255,0.4);
+
+    transition:
+        box-shadow 0.3s ease,
+        transform 0.2s ease;
 }
 
 
-// ================= CELEBRATION =================
+/* Glow when dragging */
+.slider:active {
+    box-shadow:
+        0 0 18px rgba(255, 75, 110, 0.8),
+        0 0 35px rgba(255, 182, 193, 0.7);
 
-function celebrate() {
-
-    document
-        .querySelectorAll(".question-section")
-        .forEach(q => q.classList.add("hidden"));
-
-    const c = document.getElementById("celebration");
-    if (!c) return;
-
-    c.classList.remove("hidden");
-
-
-    document.getElementById("celebrationTitle").textContent =
-        "I Love You Arya ❤️";
-
-    document.getElementById("celebrationMessage").textContent =
-        "You just made Adarsh the happiest person 💖";
-
-    document.getElementById("celebrationEmojis").textContent =
-        "💍💘🥰💕✨";
-
-    createHeartExplosion();
+    transform: scale(1.03);
 }
 
 
-// ================= HEARTS =================
+/* ===== THUMB ===== */
 
-function createHeartExplosion() {
+.slider::-webkit-slider-thumb {
+    appearance: none;
 
-    const container =
-        document.querySelector(".floating-elements");
+    width: 36px;
+    height: 36px;
 
-    if (!container) return;
+    background: radial-gradient(
+        circle,
+        #fff,
+        #ff4b6e
+    );
 
+    border-radius: 50%;
 
-    for (let i = 0; i < 50; i++) {
+    border: 3px solid white;
 
-        const heart = document.createElement("div");
+    cursor: pointer;
 
-        heart.innerHTML = "💖";
-        heart.className = "heart";
+    box-shadow:
+        0 0 10px rgba(255, 75, 110, 0.8),
+        0 0 20px rgba(255, 182, 193, 0.7);
 
-        container.appendChild(heart);
+    animation: thumbPulse 1.5s infinite;
 
-        setRandomPosition(heart);
-    }
+    transition: transform 0.2s ease;
 }
 
 
-// ================= NO =================
-
-const noMessages = [
-    "Think about it twice! 🤔",
-    "I know your heart doesn't say no 💕",
-    "Are you sure? 😏",
-    "Come on 😜",
-    "You love me ❤️"
-];
-
-let noIndex = 0;
-let noTryCount = 0;
-
-
-// Bubble position
-function positionBubble(btn, bubble) {
-
-    const rect = btn.getBoundingClientRect();
-
-    bubble.style.left =
-        rect.left + rect.width / 2 + "px";
-
-    bubble.style.top =
-        rect.bottom + 10 + "px";
-
-    bubble.style.transform = "translateX(-50%) scale(1)";
+.slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
 }
 
 
-// Bubble show
-function showBubble(bubble, msg) {
+.slider::-moz-range-thumb {
+    width: 36px;
+    height: 36px;
 
-    bubble.textContent = msg;
+    background: radial-gradient(circle, #fff, #ff4b6e);
 
-    bubble.classList.remove("hidden");
-    bubble.classList.add("show");
+    border-radius: 50%;
+    border: 3px solid white;
 
-    bubble.style.transform = "translateX(-50%) scale(1.05)";
-
-    setTimeout(() => {
-        bubble.style.transform = "translateX(-50%) scale(1)";
-    }, 200);
-
-
-    clearTimeout(window.noMsgTimer);
-
-    window.noMsgTimer = setTimeout(() => {
-
-        bubble.classList.remove("show");
-        bubble.classList.add("hidden");
-        bubble.textContent = "";
-
-    }, 2000);
+    box-shadow:
+        0 0 10px rgba(255, 75, 110, 0.8),
+        0 0 20px rgba(255, 182, 193, 0.7);
 }
 
 
-// Handle No
-function handleNoClick(event) {
-
-    const btn = event.target;
-
-    const bubble =
-        document.getElementById("noMessageBubble");
-
-    noTryCount++;
+/* Thumb pulse */
+@keyframes thumbPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
 
 
-    // Surrender ❤️
-    if (noTryCount >= 5) {
+/* ================= EXTRA LOVE ================= */
 
-        btn.style.position = "static";
-        btn.textContent = "Okay… Yes ❤️";
+#extraLove {
+    font-weight: bold;
+    color: #ff4757;
 
-        btn.onclick = () => handleYesClick();
+    padding: 6px 12px;
 
+    border-radius: 12px;
 
-        if (bubble) {
+    background: rgba(255, 75, 110, 0.1);
 
-            positionBubble(btn, bubble);
-
-            showBubble(
-                bubble,
-                "Haha 😜 I knew it! ❤️"
-            );
-        }
-
-        return;
-    }
+    animation: loveBounce 0.6s infinite alternate;
+}
 
 
-    // Normal move
-    moveButton(btn);
+@keyframes loveBounce {
+    from { transform: scale(1); }
+    to { transform: scale(1.25); }
+}
 
 
-    if (!bubble) return;
+.super-love {
+    font-size: 1.4em;
+
+    color: #ff1744;
+
+    text-shadow:
+        0 0 10px rgba(255, 23, 68, 0.7),
+        0 0 20px rgba(255, 182, 193, 0.8);
+}
 
 
-    const msg =
-        noMessages[noIndex % noMessages.length];
+/* ================= TEXT ================= */
 
-    noIndex++;
+h1,
+h2 {
+    font-family: Arial, sans-serif;
+    font-weight: 700;
+}
 
 
-    positionBubble(btn, bubble);
+h1 {
+    color: #ff6b6b;
+    margin-bottom: 2rem;
+}
 
-    showBubble(bubble, msg);
+
+h2 {
+    color: #ff8787;
+}
+
+
+.celebration-text {
+    font-size: 3em;
+
+    color: #ff4757;
+    font-weight: bold;
+
+    margin: 30px 0;
+
+    animation: bounce var(--bounce-speed) infinite alternate;
+}
+
+
+@keyframes bounce {
+    from { transform: scale(1); }
+    to { transform: scale(1.2); }
+}
+
+
+/* ================= MUSIC ================= */
+
+.music-controls {
+    position: fixed;
+
+    top: 20px;
+    right: 20px;
+
+    z-index: 1000;
+}
+
+
+.music-btn {
+    background: var(--button-color);
+
+    color: white;
+
+    border: none;
+
+    padding: 10px 20px;
+
+    border-radius: 20px;
+
+    cursor: pointer;
+
+    font-size: 16px;
+
+    transition: all 0.25s ease;
+
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+
+.music-btn:hover {
+    transform: scale(1.05);
+}
+
+
+/* ================= MESSAGE BUBBLE ================= */
+
+.no-message-bubble {
+
+    position: fixed;
+
+    min-width: 160px;
+    max-width: 240px;
+
+    padding: 8px 14px;
+
+    background: rgba(255, 255, 255, 0.95);
+
+    color: #ff4b6e;
+
+    border-radius: 18px;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    text-align: center;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    z-index: 9999;
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    transform: translateX(-50%) scale(1);
+
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s cubic-bezier(0.68,-0.55,0.27,1.55);
+}
+
+
+.no-message-bubble.show {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.05);
+}
+
+
+.no-message-bubble.hidden {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.9);
 }

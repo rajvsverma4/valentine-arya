@@ -239,4 +239,57 @@ function setupMusicPlayer() {
             musicToggle.textContent = config.music.startText;
         }
     });
+
+    // Handle Yes button click - show secret answer
+function handleYesClick() {
+  const questionContainer = document.getElementById('question1');
+  if (questionContainer) {
+    questionContainer.classList.add('hidden');
+  }
+
+  const secretAnswer = document.querySelector('.secret-answer');
+  if (secretAnswer) {
+    secretAnswer.classList.remove('hidden');
+  }
+
+  if (typeof startCelebration === 'function') {
+    startCelebration();
+  }
+}
+// Funny messages for No button
+const noMessages = [
+  "Think about it twice! 🤔",
+  "I know your heart doesn't say no 💕",
+  "Are you sure? Really sure? 😏",
+  "I knew you'd click No first 😂",
+  "Your finger slipped, right? 😜"
+];
+
+let noClickIndex = 0;
+
+// Handle No button click - show funny messages
+function handleNoClick(event) {
+  // Keep the evasive behavior
+  if (typeof moveButton === 'function') {
+    moveButton(event.target);
+  }
+
+  const bubble = document.getElementById('noMessageBubble');
+  if (!bubble) return;
+
+  // Cycle through messages
+  const message = noMessages[noClickIndex % noMessages.length];
+  noClickIndex++;
+
+  bubble.textContent = message;
+  bubble.classList.remove('hidden');
+  bubble.classList.add('show');
+
+  // Auto-hide after 1.8s
+  clearTimeout(window.__noBubbleTimeout);
+  window.__noBubbleTimeout = setTimeout(() => {
+    bubble.classList.remove('show');
+  }, 1800);
+}
+
 } 

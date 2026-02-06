@@ -44,7 +44,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     createFloatingElements();
     setupMusicPlayer();
-    setInitialPosition();
+    initLoveMeter();
 });
 
 
@@ -135,18 +135,72 @@ function moveButton(btn) {
 }
 
 
-// ================= LOVE =================
+// ================= LOVE METER (FIXED) =================
 
-const loveMeter = document.getElementById("loveMeter");
-const loveValue = document.getElementById("loveValue");
+let loveMeter, loveValue, extraLove;
 
+function initLoveMeter() {
 
-function setInitialPosition() {
+    loveMeter = document.getElementById("loveMeter");
+    loveValue = document.getElementById("loveValue");
+    extraLove = document.getElementById("extraLove");
 
     if (!loveMeter) return;
 
+    // Initial
     loveMeter.value = 100;
     loveValue.textContent = 100;
+
+    if (extraLove) {
+        extraLove.classList.add("hidden");
+        extraLove.textContent = "";
+    }
+
+
+    // Live update
+    loveMeter.addEventListener("input", () => {
+
+        const value = parseInt(loveMeter.value);
+
+        loveValue.textContent = value;
+
+
+        // Over 100% reactions 💖
+        if (value > 100 && extraLove) {
+
+            extraLove.classList.remove("hidden");
+
+            if (value >= 8000) {
+
+                extraLove.textContent = "Infinity Love 💍❤️";
+                extraLove.classList.add("super-love");
+
+            } else if (value >= 3000) {
+
+                extraLove.textContent = "Too Much Love 😍💖";
+                extraLove.classList.remove("super-love");
+
+            } else {
+
+                extraLove.textContent = "More Than 100% 😘";
+                extraLove.classList.remove("super-love");
+            }
+
+        } else if (extraLove) {
+
+            extraLove.classList.add("hidden");
+            extraLove.textContent = "";
+            extraLove.classList.remove("super-love");
+        }
+
+
+        // Feedback animation
+        loveMeter.style.transform = "scale(1.02)";
+
+        setTimeout(() => {
+            loveMeter.style.transform = "scale(1)";
+        }, 120);
+    });
 }
 
 
@@ -317,7 +371,7 @@ function handleNoClick(event) {
     noTryCount++;
 
 
-    // Surrender
+    // Surrender ❤️
     if (noTryCount >= 5) {
 
         btn.style.position = "static";

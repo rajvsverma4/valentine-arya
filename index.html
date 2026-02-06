@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- CUSTOMIZE: Browser tab title -->
+    <!-- Browser tab title -->
     <title>Will You Be My Valentine? 💝</title>
 
     <!-- Google Fonts -->
@@ -17,54 +17,58 @@
 <body>
 
     <!-- Floating Background Elements -->
-    <div class="floating-elements">
-        <!-- Hearts and bears will be added here by JavaScript -->
-    </div>
+    <div class="floating-elements"></div>
 
-    <!-- Main Content Container -->
+
+    <!-- Main Container -->
     <div class="container">
 
+        <!-- Title -->
         <h1 id="valentineTitle"></h1>
+
 
         <!-- Music Player -->
         <div id="musicControls" class="music-controls">
-            <button id="musicToggle" class="music-btn">🎵 Play Music</button>
+
+            <button id="musicToggle" class="music-btn">
+                🎵 Play Music
+            </button>
 
             <audio id="bgMusic" loop>
                 <source id="musicSource" type="audio/mpeg">
-                Your browser does not support the audio element.
+                Your browser does not support audio.
             </audio>
+
         </div>
 
 
-        <!-- ================= FIRST QUESTION ================= -->
+        <!-- ================= QUESTION 1 ================= -->
+
         <div class="question-section" id="question1">
 
             <h2 id="question1Text"></h2>
 
-            <!-- YES BUTTON -->
-            <button class="cute-btn" onclick="handleYesClick()" id="yesBtn1">
+            <!-- YES -->
+            <button
+                class="cute-btn"
+                id="yesBtn1"
+                onclick="handleYesClick()">
                 Yes
             </button>
 
-            <!-- NO BUTTON -->
-            <button class="cute-btn" onclick="handleNoClick(event)" id="noBtn1">
+            <!-- NO -->
+            <button
+                class="cute-btn"
+                id="noBtn1"
+                onclick="handleNoClick(event)">
                 No
             </button>
-
-            <!-- Secret Answer -->
-            <div class="secret-answer">
-                <button
-                    class="cute-btn special"
-                    onclick="showNextQuestion(2)"
-                    id="secretAnswerBtn">
-                </button>
-            </div>
 
         </div>
 
 
-        <!-- ================= SECOND QUESTION ================= -->
+        <!-- ================= QUESTION 2 ================= -->
+
         <div class="question-section hidden" id="question2">
 
             <h2 id="question2Text"></h2>
@@ -86,18 +90,22 @@
                         <span id="startText"></span>
                         (<span id="loveValue">100</span>%)
                     </span>
-
-                    <span id="extraLove" class="hidden"></span>
                 </p>
 
             </div>
 
-            <button class="cute-btn" onclick="showNextQuestion(3)" id="nextBtn"></button>
+            <button
+                class="cute-btn"
+                id="nextBtn"
+                onclick="showNextQuestion(3)">
+                Next
+            </button>
 
         </div>
 
 
-        <!-- ================= FINAL QUESTION ================= -->
+        <!-- ================= QUESTION 3 ================= -->
+
         <div class="question-section hidden" id="question3">
 
             <h2 id="question3Text"></h2>
@@ -105,21 +113,24 @@
             <!-- FINAL YES -->
             <button
                 class="cute-btn final-yes"
-                onclick="celebrate()"
-                id="yesBtn3">
+                id="yesBtn3"
+                onclick="celebrate()">
+                Yes
             </button>
 
             <!-- FINAL NO -->
             <button
                 class="cute-btn"
-                onclick="moveButton(this)"
-                id="noBtn3">
+                id="noBtn3"
+                onclick="moveButton(this)">
+                No
             </button>
 
         </div>
 
 
         <!-- ================= CELEBRATION ================= -->
+
         <div class="celebration hidden" id="celebration">
 
             <h2 id="celebrationTitle"></h2>
@@ -133,14 +144,17 @@
     </div>
 
 
-    <!-- ================= SCRIPTS ================= -->
+    <!-- Message Bubble -->
+    <div
+        id="noMessageBubble"
+        class="no-message-bubble hidden">
+    </div>
+
+
+    <!-- Scripts -->
     <script src="config.js"></script>
     <script src="theme.js"></script>
     <script src="script.js"></script>
-
-
-    <!-- No Button Message Bubble -->
-    <div id="noMessageBubble" class="no-message-bubble hidden"></div>
 
 </body>
 </html>

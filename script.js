@@ -132,7 +132,7 @@ function initLoveMeter() {
     loveValue.textContent = 100;
 
 
-    loveMeter.addEventListener("input", () => {
+    loveMeter.addEventListener("input", e => {
 
         const value = +loveMeter.value;
 
@@ -147,10 +147,11 @@ function initLoveMeter() {
              0 0 ${25+p*70}px rgba(255,128,171,1)`;
 
 
+        // Shake
         shakeScreen(p);
 
 
-        // Text
+        // Messages
         if (value > 100 && extraLove) {
 
             extraLove.classList.remove("hidden");
@@ -167,6 +168,7 @@ function initLoveMeter() {
             }
 
         } else if (extraLove) {
+
             extraLove.classList.add("hidden");
         }
 
@@ -188,31 +190,13 @@ function initLoveMeter() {
 
 function startFinalExplosion() {
 
-    slowMotion();
     shockwave();
     particleStorm();
     fireworks();
 }
 
 
-// Time slow + zoom
-function slowMotion() {
-
-    document.body.style.transition = "transform 0.4s ease";
-    document.body.style.transform = "scale(1.05)";
-
-    document.body.style.filter = "brightness(1.2)";
-
-    setTimeout(() => {
-
-        document.body.style.transform = "scale(1)";
-        document.body.style.filter = "none";
-
-    }, 600);
-}
-
-
-// Shockwave ring
+// Shockwave
 function shockwave() {
 
     const wave = document.createElement("div");
@@ -247,7 +231,7 @@ function shockwave() {
 }
 
 
-// Hearts + sparkles
+// Particles
 function particleStorm() {
 
     for(let i=0;i<120;i++){
@@ -380,8 +364,8 @@ function celebrate(){
 const noMessages=[
  "Think again 🤔",
  "You love me 💕",
- "No chance 😏",
- "Try harder 😜",
+ "Are you sure 😏",
+ "Come on 😜",
  "Okay fine ❤️"
 ];
 

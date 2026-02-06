@@ -2,6 +2,9 @@
 
 const config = window.VALENTINE_CONFIG || {};
 
+let sparkleTimer = null;
+let firstYesDone = false;
+
 
 // ================= TITLE =================
 
@@ -45,6 +48,8 @@ window.addEventListener("DOMContentLoaded", () => {
     createFloatingElements();
     setupMusicPlayer();
     initLoveMeter();
+    initSparkles();
+    initGlitter();
 });
 
 
@@ -135,7 +140,7 @@ function moveButton(btn) {
 }
 
 
-// ================= LOVE METER (POWER MODE) =================
+// ================= LOVE METER =================
 
 let loveMeter, loveValue, extraLove;
 let maxTriggered = false;
@@ -149,56 +154,46 @@ function initLoveMeter() {
     if (!loveMeter) return;
 
 
-    // Initial
     loveMeter.value = 100;
     loveValue.textContent = 100;
 
 
-    if (extraLove) {
-        extraLove.classList.add("hidden");
-        extraLove.textContent = "";
-    }
-
-
-    // Live update
-    loveMeter.addEventListener("input", () => {
+    loveMeter.addEventListener("input", e => {
 
         const value = parseInt(loveMeter.value);
-
         loveValue.textContent = value;
 
 
-        /* Glow intensity */
-        const power = Math.min(value / 10000, 1);
+        // Glow
+        const power = value / 10000;
 
         loveMeter.style.boxShadow =
-            `0 0 ${10 + power * 40}px rgba(255,23,68,0.9),
-             0 0 ${20 + power * 60}px rgba(255,128,171,1)`;
+            `0 0 ${15 + power*40}px rgba(255,23,68,1),
+             0 0 ${25 + power*60}px rgba(255,128,171,1)`;
 
 
-        /* Screen shake near max */
-        if (value > 8500) {
-            shakeScreen(power);
-        }
+        // Shake always
+        shakeScreen(power);
 
 
-        /* Extra messages */
+        // Sparkles
+        spawnSparkle(e.clientX, e.clientY);
+
+
+        // Messages
         if (value > 100 && extraLove) {
 
             extraLove.classList.remove("hidden");
 
             if (value >= 9000) {
-
                 extraLove.textContent = "MAX LOVE MODE 💍🔥❤️";
                 extraLove.classList.add("super-love");
-
-            } else if (value >= 5000) {
-
+            }
+            else if (value >= 5000) {
                 extraLove.textContent = "Too Much Love 😍💖";
                 extraLove.classList.remove("super-love");
-
-            } else {
-
+            }
+            else {
                 extraLove.textContent = "More Than 100% 😘";
                 extraLove.classList.remove("super-love");
             }
@@ -207,76 +202,180 @@ function initLoveMeter() {
 
             extraLove.classList.add("hidden");
             extraLove.textContent = "";
-            extraLove.classList.remove("super-love");
         }
 
 
-        /* Bounce */
-        loveMeter.style.transform = "scale(1.05)";
-
-        setTimeout(() => {
-            loveMeter.style.transform = "scale(1)";
-        }, 100);
-
-
-        /* Max explosion */
+        // Max
         if (value >= 10000 && !maxTriggered) {
 
             maxTriggered = true;
 
+            flashScreen();
             ultraLoveExplosion();
         }
 
-        if (value < 9800) {
-            maxTriggered = false;
-        }
+        if (value < 9800) maxTriggered = false;
     });
 }
 
 
-/* Screen shake */
-function shakeScreen(power) {
+// ================= EFFECTS =================
 
-    const container = document.querySelector(".container");
 
-    if (!container) return;
+// Screen shake
+function shakeScreen(power = 0.2) {
 
-    const intensity = 2 + power * 6;
+    const c = document.querySelector(".container");
 
-    container.style.transform =
-        `translate(${Math.random()*intensity-intensity/2}px,
-                   ${Math.random()*intensity-intensity/2}px)`;
+    if (!c) return;
+
+    const i = 2 + power * 8;
+
+    c.style.transform =
+        `translate(${Math.random()*i-i/2}px,
+                   ${Math.random()*i-i/2}px)`;
 
     setTimeout(() => {
-        container.style.transform = "translate(0,0)";
-    }, 50);
+        c.style.transform = "translate(0,0)";
+    }, 40);
 }
 
 
-/* Max hearts */
-function ultraLoveExplosion() {
+// Flash
+function flashScreen() {
 
-    const container =
-        document.querySelector(".floating-elements");
+    const flash = document.createElement("div");
 
-    if (!container) return;
+    flash.style.position = "fixed";
+    flash.style.top = 0;
+    flash.style.left = 0;
+    flash.style.width = "100%";
+    flash.style.height = "100%";
+
+    flash.style.background = "rgba(255,180,200,0.8)";
+    flash.style.zIndex = 99999;
+
+    document.body.appendChild(flash);
+
+    setTimeout(() => flash.remove(), 150);
+}
 
 
-    for (let i = 0; i < 120; i++) {
+// Sparkles
+function spawnSparkle(x, y) {
 
-        const heart = document.createElement("div");
+    if (!x || !y) return;
 
-        heart.innerHTML = "💖";
-        heart.className = "heart";
+    const s = document.createElement("div");
 
-        heart.style.left = "50%";
-        heart.style.top = "50%";
+    s.innerHTML = "✨";
 
-        container.appendChild(heart);
+    s.style.position = "fixed";
+    s.style.left = x + "px";
+    s.style.top = y + "px";
 
-        setTimeout(() => {
-            setRandomPosition(heart);
-        }, 20);
+    s.style.pointerEvents = "none";
+    s.style.zIndex = 9999;
+
+    s.style.fontSize = "14px";
+
+    document.body.appendChild(s);
+
+
+    s.animate([
+        { transform: "scale(1)", opacity: 1 },
+        { transform: "translateY(-30px) scale(0)", opacity: 0 }
+    ], {
+        duration: 600,
+        easing: "ease-out"
+    });
+
+    setTimeout(() => s.remove(), 600);
+}
+
+
+// Glitter background
+function initGlitter() {
+
+    setInterval(() => {
+
+        const g = document.createElement("div");
+
+        g.innerHTML = "✨";
+
+        g.style.position = "fixed";
+        g.style.left = Math.random()*100+"vw";
+        g.style.top = "-20px";
+
+        g.style.opacity = "0.4";
+        g.style.fontSize = "10px";
+        g.style.pointerEvents = "none";
+
+        document.body.appendChild(g);
+
+
+        g.animate([
+            { transform: "translateY(0)", opacity: 0.4 },
+            { transform: "translateY(110vh)", opacity: 0 }
+        ], {
+            duration: 8000,
+            easing: "linear"
+        });
+
+        setTimeout(() => g.remove(), 8000);
+
+    }, 400);
+}
+
+
+// Sparkle on buttons
+function initSparkles() {
+
+    document.querySelectorAll("button").forEach(btn => {
+
+        btn.addEventListener("mouseenter", e => {
+
+            spawnSparkle(
+                e.clientX,
+                e.clientY
+            );
+        });
+    });
+}
+
+
+// Mini burst on first YES
+function miniYesExplosion(btn) {
+
+    const r = btn.getBoundingClientRect();
+
+    for (let i = 0; i < 20; i++) {
+
+        const h = document.createElement("div");
+
+        h.innerHTML = "💖";
+
+        h.style.position = "fixed";
+        h.style.left = r.left + r.width/2 + "px";
+        h.style.top = r.top + r.height/2 + "px";
+
+        h.style.pointerEvents = "none";
+
+        document.body.appendChild(h);
+
+
+        const x = (Math.random()-0.5)*200;
+        const y = (Math.random()-0.5)*200;
+
+        h.animate([
+            { transform:"scale(1)", opacity:1 },
+            { transform:`translate(${x}px,${y}px) scale(0)`, opacity:0 }
+        ],{
+            duration:700,
+            easing:"ease-out"
+        });
+
+        setTimeout(()=>h.remove(),700);
     }
 }
 
@@ -313,6 +412,19 @@ function setupMusicPlayer() {
 // ================= YES FLOW =================
 
 function handleYesClick() {
+
+    if (!firstYesDone) {
+
+        firstYesDone = true;
+
+        miniYesExplosion(
+            document.getElementById("yesBtn1")
+        );
+
+        flashScreen();
+        shakeScreen(0.6);
+    }
+
     showNextQuestion(2);
 }
 
@@ -323,6 +435,10 @@ function goToFinal() {
 
 
 function finalYes() {
+
+    flashScreen();
+    shakeScreen(1);
+
     celebrate();
 }
 
@@ -350,31 +466,7 @@ function celebrate() {
     document.getElementById("celebrationEmojis").textContent =
         "💍💘🥰💕✨";
 
-    createHeartExplosion();
-}
-
-
-// ================= HEARTS =================
-
-function createHeartExplosion() {
-
-    const container =
-        document.querySelector(".floating-elements");
-
-    if (!container) return;
-
-
-    for (let i = 0; i < 50; i++) {
-
-        const heart = document.createElement("div");
-
-        heart.innerHTML = "💖";
-        heart.className = "heart";
-
-        container.appendChild(heart);
-
-        setRandomPosition(heart);
-    }
+    ultraLoveExplosion();
 }
 
 
@@ -392,34 +484,26 @@ let noIndex = 0;
 let noTryCount = 0;
 
 
-// Bubble position
 function positionBubble(btn, bubble) {
 
-    const rect = btn.getBoundingClientRect();
+    const r = btn.getBoundingClientRect();
 
     bubble.style.left =
-        rect.left + rect.width / 2 + "px";
+        r.left + r.width/2 + "px";
 
     bubble.style.top =
-        rect.bottom + 10 + "px";
+        r.bottom + 10 + "px";
 
-    bubble.style.transform = "translateX(-50%) scale(1)";
+    bubble.style.transform = "translateX(-50%)";
 }
 
 
-// Bubble show
 function showBubble(bubble, msg) {
 
     bubble.textContent = msg;
 
     bubble.classList.remove("hidden");
     bubble.classList.add("show");
-
-    bubble.style.transform = "translateX(-50%) scale(1.05)";
-
-    setTimeout(() => {
-        bubble.style.transform = "translateX(-50%) scale(1)";
-    }, 200);
 
 
     clearTimeout(window.noMsgTimer);
@@ -434,7 +518,6 @@ function showBubble(bubble, msg) {
 }
 
 
-// Handle No
 function handleNoClick(event) {
 
     const btn = event.target;
@@ -445,7 +528,6 @@ function handleNoClick(event) {
     noTryCount++;
 
 
-    // Surrender ❤️
     if (noTryCount >= 5) {
 
         btn.style.position = "static";
@@ -468,7 +550,6 @@ function handleNoClick(event) {
     }
 
 
-    // Normal move
     moveButton(btn);
 
 

@@ -6,10 +6,10 @@ const config = window.VALENTINE_CONFIG || {};
 // ================= VALIDATION =================
 
 function validateConfig() {
+
     const warnings = [];
 
     if (!config.valentineName) {
-        warnings.push("Valentine name missing. Using default.");
         config.valentineName = "My Love";
     }
 
@@ -17,14 +17,13 @@ function validateConfig() {
         /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex);
 
     Object.entries(config.colors || {}).forEach(([key, value]) => {
+
         if (!isValidHex(value)) {
-            warnings.push(`Invalid color: ${key}`);
             config.colors[key] = getDefaultColor(key);
         }
     });
 
     if (parseFloat(config.animations?.floatDuration) < 5) {
-        warnings.push("Float duration too small. Reset.");
         config.animations.floatDuration = "5s";
     }
 
@@ -32,13 +31,7 @@ function validateConfig() {
         config.animations?.heartExplosionSize < 1 ||
         config.animations?.heartExplosionSize > 3
     ) {
-        warnings.push("Invalid heart explosion size.");
         config.animations.heartExplosionSize = 1.5;
-    }
-
-    if (warnings.length) {
-        console.warn("Config warnings:");
-        warnings.forEach(w => console.warn(w));
     }
 }
 
@@ -74,7 +67,7 @@ window.addEventListener("DOMContentLoaded", () => {
         `${config.valentineName || "My Love"}, my love...`;
 
 
-    // -------- Question 1 --------
+    // -------- Q1 --------
 
     document.getElementById("question1Text").textContent =
         config.questions?.first?.text || "";
@@ -89,7 +82,7 @@ window.addEventListener("DOMContentLoaded", () => {
         config.questions?.first?.secretAnswer || "Click Me";
 
 
-    // -------- Question 2 --------
+    // -------- Q2 --------
 
     document.getElementById("question2Text").textContent =
         config.questions?.second?.text || "";
@@ -101,7 +94,7 @@ window.addEventListener("DOMContentLoaded", () => {
         config.questions?.second?.nextBtn || "Next";
 
 
-    // -------- Question 3 --------
+    // -------- Q3 --------
 
     document.getElementById("question3Text").textContent =
         config.questions?.third?.text || "";
@@ -119,13 +112,12 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 
-// ================= FLOATING EMOJIS =================
+// ================= FLOATING =================
 
 function createFloatingElements() {
 
     const container = document.querySelector(".floating-elements");
     if (!container) return;
-
 
     (config.floatingEmojis?.hearts || []).forEach(h => {
 
@@ -136,7 +128,6 @@ function createFloatingElements() {
         setRandomPosition(div);
         container.appendChild(div);
     });
-
 
     (config.floatingEmojis?.bears || []).forEach(b => {
 
@@ -179,15 +170,36 @@ function moveButton(btn) {
 
     if (!btn) return;
 
+    const padding = 80;
+
+    const maxX =
+        window.innerWidth - btn.offsetWidth - padding;
+
+    const maxY =
+        window.innerHeight - btn.offsetHeight - padding;
+
+    const minX = padding;
+    const minY = padding;
+
     const x =
-        Math.random() * (window.innerWidth - btn.offsetWidth);
+        Math.random() * (maxX - minX) + minX;
 
     const y =
-        Math.random() * (window.innerHeight - btn.offsetHeight);
+        Math.random() * (maxY - minY) + minY;
+
+
+    btn.style.transition =
+        "all 0.35s cubic-bezier(0.68,-0.55,0.27,1.55)";
 
     btn.style.position = "fixed";
     btn.style.left = x + "px";
     btn.style.top = y + "px";
+
+    btn.style.transform = "scale(1.1) rotate(3deg)";
+
+    setTimeout(() => {
+        btn.style.transform = "scale(1) rotate(0deg)";
+    }, 200);
 }
 
 
@@ -230,21 +242,18 @@ loveMeter?.addEventListener("input", () => {
         if (value >= 5000) {
 
             extraLove?.classList.add("super-love");
-
             extraLove.textContent =
                 config.loveMessages?.extreme || "";
 
         } else if (value > 1000) {
 
             extraLove?.classList.remove("super-love");
-
             extraLove.textContent =
                 config.loveMessages?.high || "";
 
         } else {
 
             extraLove?.classList.remove("super-love");
-
             extraLove.textContent =
                 config.loveMessages?.normal || "";
         }
@@ -402,11 +411,9 @@ function handleYesClick() {
         q1.classList.add("hidden");
 
 
-    const secret =
-        document.querySelector(".secret-answer");
-
-    if (secret)
-        secret.classList.remove("hidden");
+    setTimeout(() => {
+        showNextQuestion(2);
+    }, 300);
 }
 
 
@@ -421,12 +428,51 @@ const noMessages = [
 ];
 
 let noIndex = 0;
+let noTryCount = 0;
 
 
 function handleNoClick(event) {
 
     const btn = event.target;
 
+    noTryCount++;
+
+
+    // After 5 tries -> surrender ❤️
+    if (noTryCount >= 5) {
+
+        btn.style.position = "static";
+        btn.style.transition = "all 0.3s ease";
+        btn.style.transform = "scale(1)";
+
+        btn.textContent = "Okay… Yes ❤️";
+
+        btn.onclick = () => {
+            handleYesClick();
+        };
+
+
+        const bubble =
+            document.getElementById("noMessageBubble");
+
+        if (bubble) {
+
+            bubble.textContent =
+                "Haha 😜 I knew it! You love me ❤️";
+
+            bubble.classList.remove("hidden");
+            bubble.classList.add("show");
+
+            setTimeout(() => {
+                bubble.classList.remove("show");
+            }, 2000);
+        }
+
+        return;
+    }
+
+
+    // Normal behavior
     moveButton(btn);
 
 
